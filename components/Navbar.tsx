@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Logo from "./Logo";
+import UserMenu from "./UserMenu";
 import { createClient } from "@/lib/supabase/server";
-import { signOut } from "@/lib/actions";
 
 const links = [
   { href: "/", label: "Home" },
@@ -11,17 +11,24 @@ const links = [
 ];
 
 export default async function Navbar() {
-  let email: string | null = null;
-  let isAdmin = false;
+  let account: { name: string; email: string; avatar: string | null; isAdmin: boolean } | null = null;
+
   try {
     const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    email = user?.email ?? null;
+
     if (user) {
-      const { data: a } = await supabase.from("admins").select("user_id").eq("user_id", user.id).maybeSingle();
-      isAdmin = !!a;
+      const meta = user.user_metadata ?? {};
+      const { data: admin } = await supabase.from("admins").select("user_id").eq("user_id", user.id).maybeSingle();
+      account = {
+        // Google gives full_name / name; email sign-ups use the name typed on the sign-up form
+        name: meta.full_name || meta.name || (user.email ? user.email.split("@")[0] : "Account"),
+        email: user.email ?? "",
+        avatar: meta.avatar_url || meta.picture || null,
+        isAdmin: !!admin,
+      };
     }
   } catch {
     // Supabase not configured yet: render the navbar as logged out.
@@ -39,35 +46,15 @@ export default async function Navbar() {
               </Link>
             </li>
           ))}
-          {email ? (
-            <>
-              {isAdmin && (
-                <li>
-                  <Link href="/admin" className="font-bold text-[#a78bfa] hover:text-white">
-                    Admin
-                  </Link>
-                </li>
-              )}
-              <li>
-                <Link href="/bookings" className="hover:text-white">
-                  My bookings
-                </Link>
-              </li>
-              <li>
-                <form action={signOut}>
-                  <button className="rounded-lg border border-white/40 px-3.5 py-1.5 text-white hover:bg-white/10">
-                    Log out
-                  </button>
-                </form>
-              </li>
-            </>
-          ) : (
-            <li>
+          <li>
+            {account ? (
+              <UserMenu {...account} />
+            ) : (
               <Link href="/login" className="rounded-lg border border-white/40 px-3.5 py-1.5 text-white hover:bg-white/10">
                 Login / Sign Up
               </Link>
-            </li>
-          )}
+            )}
+          </li>
         </ul>
       </nav>
     </header>
