@@ -3,6 +3,16 @@ import { NextResponse, type NextRequest } from "next/server";
 
 // Keeps the Supabase session cookie fresh and protects private pages.
 export async function updateSession(request: NextRequest) {
+  // Safety net: if the login provider sends the user to "/?code=..." instead of
+  // "/auth/callback?code=...", forward the code so the login still completes.
+  const code = request.nextUrl.searchParams.get("code");
+  if (code && request.nextUrl.pathname === "/") {
+    const callback = request.nextUrl.clone();
+    callback.pathname = "/auth/callback";
+    callback.search = `?code=${encodeURIComponent(code)}&next=/`;
+    return NextResponse.redirect(callback);
+  }
+
   let response = NextResponse.next({ request });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -23,7 +33,6 @@ export async function updateSession(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  
 
   const protectedPaths = ["/bookings", "/admin", "/profile"];
   if (!user && protectedPaths.some((p) => request.nextUrl.pathname.startsWith(p))) {
