@@ -38,7 +38,7 @@ export default async function AdminUser({ params }: { params: Promise<{ id: stri
         <div className="overflow-x-auto rounded-xl border border-line bg-white">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-line bg-lav text-xs uppercase text-slate-500">
-              <tr><th className="p-3">Booked on</th><th className="p-3">PG / room</th><th className="p-3">Visit date</th><th className="p-3">Amount</th><th className="p-3">Payment</th><th className="p-3">PhonePe txn</th></tr>
+              <tr><th className="p-3">Booked on</th><th className="p-3">PG / room</th><th className="p-3">Visit date</th><th className="p-3">Amount</th><th className="p-3">Payment</th><th className="p-3">Payment ID</th></tr>
             </thead>
             <tbody>
               {bookings.map((b) => (
