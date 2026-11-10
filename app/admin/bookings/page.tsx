@@ -41,7 +41,7 @@ export default async function AdminBookings({ searchParams }: { searchParams: Pr
             <tr>
               <th className="p-3">Booked on</th><th className="p-3">Person</th><th className="p-3">Phone</th>
               <th className="p-3">PG / room</th><th className="p-3">Visit date</th><th className="p-3">Amount</th>
-              <th className="p-3">Payment</th><th className="p-3">PhonePe IDs</th><th className="p-3">Moved in</th>
+              <th className="p-3">Payment</th><th className="p-3">Payment IDs</th><th className="p-3">Moved in</th>
             </tr>
           </thead>
           <tbody>
